@@ -38,6 +38,7 @@ document.body.addEventListener("keyup", function (keystroke) {
 	else if (barOpen && document.activeElement.id === searchBarId) {
 		//begin the search feature here
 		lastSearch = getSearchValue();
+		searchLinksForString(lastSearch, 0);
 	}
 });
 
@@ -56,6 +57,25 @@ function hideSearchBar() {
 	}
 }
 
+//Get the current search bar text
 function getSearchValue() {
 	return document.getElementById(searchBarId).value;
+}
+
+//Search all links on the page for a given string
+// Params: the string to search for, the instance number
+// if you are using the F2 key to iterate
+function searchLinksForString (searchString, instanceNo) {
+	console.log(searchString);
+	var allLinks = document.getElementsByTagName("a");
+	var filteredLinks = [];
+	for (var i = 0; i < allLinks.length; i++) {
+		if (allLinks[i].innerText.includes(lastSearch)) {
+			//console.log("link: " + allLinks[i].innerText);
+			filteredLinks.push(allLinks[i]);
+		}
+	} 
+	// target instance is filtered[no]
+	var currentLink = filteredLinks[instanceNo % filteredLinks.length];
+	//console.log(currentLink.innerText);
 }
