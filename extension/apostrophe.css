@@ -5,4 +5,5 @@ with normal page elements unlikely */
 	top: 5px;
 	right: 5px;
 	z-index: 2147483647;
+	display: none;
 }
