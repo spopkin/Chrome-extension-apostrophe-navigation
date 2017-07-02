@@ -15,6 +15,9 @@ searchBar.nodeType = "text";
 searchBar.id = searchBarId;
 bodyNode.appendChild(searchBar);
 
+var currentLink = null;
+var currentLinkStyle = null;
+
 searchBar.focus();
 
 //Listen for the apropriate keystroke input and take action
@@ -55,6 +58,7 @@ function hideSearchBar() {
 		document.getElementById(searchBarId).style.display = "none";
 		barOpen = false;
 	}
+	resetCurrentLinkStyle();
 }
 
 //Get the current search bar text
@@ -66,6 +70,7 @@ function getSearchValue() {
 // Params: the string to search for, the instance number
 // if you are using the F2 key to iterate
 function searchLinksForString (searchString, instanceNo) {
+	resetCurrentLinkStyle();
 	console.log(searchString);
 	var allLinks = document.getElementsByTagName("a");
 	var filteredLinks = [];
@@ -76,6 +81,18 @@ function searchLinksForString (searchString, instanceNo) {
 		}
 	} 
 	// target instance is filtered[no]
-	var currentLink = filteredLinks[instanceNo % filteredLinks.length];
+	currentLink = filteredLinks[instanceNo % filteredLinks.length];
+	currentLinkStyle = currentLink.style;
+	currentLink.style.border = "1px dotted grey";
+	//var selection = window.getSelection();
+	//selection.empty();
+	
+
 	//console.log(currentLink.innerText);
+}
+
+function resetCurrentLinkStyle() {
+	if (currentLink != null) {
+		currentLink.style = currentLinkStyle;
+	}
 }
