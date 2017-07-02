@@ -1,2 +1,2 @@
-# apostrophe
+# comma
 Chrome extension for link search navigation like Firefox has

@@ -1,0 +1,29 @@
+{
+	"manifest_version": 2,
+
+	"name": "apostrophe",
+	"description": "link search navigation for Chrome",
+	"version": "0.1",
+	
+	"browser_action": {
+		"default_icon": "apostrophe.png",
+		"default_popup": "popup.html"
+	},
+
+	"content_scripts": [
+		{
+			"matches": ["http://*/*", "https://*/*"],
+			"js": ["searchScript.js"]
+		}
+	],
+
+	"background": {
+		"persistent": false,
+		"scripts": ["backgroundScript.js"]
+	},
+
+	"permissions": [
+		"activeTab"
+	]
+	
+}
