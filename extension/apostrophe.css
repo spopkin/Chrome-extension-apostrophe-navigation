@@ -1,6 +1,9 @@
 /* Used a long name so as to make collisions 
 with normal page elements unlikely */
 #injectedApostropheSearchBar {
+}
+
+#injectedApostropheDiv {
 	position: fixed;
 	top: 5px;
 	right: 5px;

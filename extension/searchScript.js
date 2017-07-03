@@ -1,5 +1,7 @@
 //constants
 const searchBarId = "injectedApostropheSearchBar";
+const searchBarDivId = "injectedApostropheDiv";
+const searchBarResultTextId = "injectedApostropheSearchResultText";
 const barOpenKey = '\'';
 const barCloseKey = 'Escape';
 //F3 does this in Firefox, but Chrome intercepts that
@@ -13,10 +15,16 @@ var barOpen = false;
 
 //create the search bar
 var bodyNode = document.body;
+var searchBarDiv = document.createElement("div");
 var searchBar = document.createElement("input");
+var resultText = document.createElement("p");
+searchBarDiv.id = searchBarDivId;
+resultText.id = searchBarResultTextId;
 searchBar.nodeType = "text";
 searchBar.id = searchBarId;
-bodyNode.appendChild(searchBar);
+searchBarDiv.appendChild(searchBar);
+searchBarDiv.appendChild(resultText);
+bodyNode.appendChild(searchBarDiv);
 
 //The most recent search query.  It has to be up here,
 //so as to facilitate pickup up where we left off with
@@ -66,14 +74,17 @@ document.body.addEventListener("keyup", function (keystroke) {
 				searchLinksForString(lastSearch, lastSearchedIndex);
 			}
 	}
-	else if (keystroke.key == linkFollowKey && barOpen) {
+	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
 		//follow it in a new tab if ctrl is pressed
 		if (keystroke.ctrlKey) {
 			currentLink.target = "_blank";
+			currentLink.click();
+			hideSearchBar();
 		}
-
-		//follow the selected link normally if not
-		currentLink.click();
+		else {
+			//follow the selected link normally if not
+			currentLink.click();
+		}
 	}
 	else if (barOpen && document.activeElement.id === searchBarId) {
 		if (printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
@@ -97,14 +108,14 @@ function printableKey (keyCode) {
 function showSearchBar() {
 	if (!barOpen) {
 		searchBar.value = lastSearch;
-		document.getElementById(searchBarId).style.display = "block";
+		document.getElementById(searchBarDivId).style.display = "block";
 		barOpen = true;
 	}
 }
 
 function hideSearchBar() {
 	if (barOpen) {
-		document.getElementById(searchBarId).style.display = "none";
+		document.getElementById(searchBarDivId).style.display = "none";
 		barOpen = false;
 	}
 	resetCurrentLink();
@@ -133,11 +144,14 @@ function searchLinksForString (searchString, instanceNo) {
 		//loop around if we fall below index 0
 		instanceNo = filteredLinks.length + instanceNo;
 	}
-	
+
 	// target instance is filtered[no]
 	if (filteredLinks.length > 0) {
+		//adjust the instance number if it is too big
+		instanceNo = instanceNo % filteredLinks.length;
+
 		//get the current link
-		currentLink = filteredLinks[instanceNo % filteredLinks.length];
+		currentLink = filteredLinks[instanceNo];
 		currentLinkStyle = currentLink.style;
 
 		//add border to it
@@ -148,10 +162,13 @@ function searchLinksForString (searchString, instanceNo) {
 		currentLink.style.backgroundColor = linkHighlightColor;
 
 		currentLink.scrollIntoView(false);
+		document.getElementById(searchBarResultTextId).innerText = "result " 
+		+ (instanceNo + 1) + " of " + (filteredLinks.length);
 	}
 	else {
 		//console.log("no match for: " + lastSearch);
 		lastSearchedIndex = 0;
+		document.getElementById(searchBarResultTextId).innerText = "result 0 of 0";
 	}
 	//var selection = window.getSelection();
 }
