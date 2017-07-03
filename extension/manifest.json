@@ -3,7 +3,7 @@
 
 	"name": "apostrophe",
 	"description": "link search navigation for Chrome",
-	"version": "0.0.0.8",
+	"version": "0.0.1.0",
 	
 	"browser_action": {
 		"default_icon": "apostrophe.png",
