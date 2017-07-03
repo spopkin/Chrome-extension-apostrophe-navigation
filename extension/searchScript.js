@@ -45,26 +45,26 @@ document.body.addEventListener("keyup", function (keystroke) {
 	else if (keystroke.key == barCloseKey) {
 		//close the search bar
 		hideSearchBar();
-
-		//stub
-		lastSearchedIndex = 0;
 	}
 	else if (keystroke.key == continueKey) {
+			var wasOpen = barOpen;
 			//continue the search without clearing the last search
 			showSearchBar();
-			if (barOpen) {
+			if (wasOpen) {
 				//search the next link
 				if (!keystroke.shiftKey) {
-					searchLinksForString(lastSearch, ++lastSearchedIndex);
+					searchLinksForString(lastSearch, lastSearchedIndex + 1);
 				}
 				else {
-					searchLinksForString(lastSearch, --lastSearchedIndex);
+					searchLinksForString(lastSearch, lastSearchedIndex - 1);
 				}
 			}
 			else {
 				//search the current one again
 				searchLinksForString(lastSearch, lastSearchedIndex);
+				console.log("asdf");
 			}
+			console.log(lastSearchedIndex);
 	}
 
 	else if (barOpen && document.activeElement.id === searchBarId) {
@@ -121,6 +121,7 @@ function searchLinksForString (searchString, instanceNo) {
 	} 
 
 	if (instanceNo < 0) {
+		//loop around if we fall below index 0
 		instanceNo = filteredLinks.length + instanceNo;
 	}
 	
@@ -129,7 +130,8 @@ function searchLinksForString (searchString, instanceNo) {
 		currentLink = filteredLinks[instanceNo % filteredLinks.length];
 		currentLinkStyle = currentLink.style;
 		currentLink.style.border = "1px dotted grey";
-		mostRecent = instanceNo;
+		lastSearchedIndex = instanceNo;
+		
 	}
 	else {
 		console.log("no match for: " + lastSearch);
