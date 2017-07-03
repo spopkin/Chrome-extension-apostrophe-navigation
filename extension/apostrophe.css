@@ -7,3 +7,7 @@ with normal page elements unlikely */
 	z-index: 2147483647;
 	display: none;
 }
+
+#apostrophePopupBody {
+	min-width: 300px;	
+}

@@ -1,5 +1,3 @@
-//alert("extension loaded");
-
 //constants
 const searchBarId = "injectedApostropheSearchBar";
 const barOpenKey = '\'';
@@ -8,6 +6,7 @@ const barCloseKey = 'Escape';
 const continueKey = 'F2';
 const linkBorderStyle = "1px dotted grey";
 const linkHighlightColor = "#ECECFF";
+const linkFollowKey = 'Enter';
 
 //are we in the middle of a search now?
 var barOpen = false;
@@ -29,7 +28,8 @@ var lastSearchedIndex = 0;
 
 //The currently selected link.  It had to be put here,
 //so as to be able to reset its style when selecting a
-//different one.
+//different one, as well as to be able to click it with
+//a different event than the one that selected it.
 var currentLink = null;
 var currentLinkStyle = null;
 
@@ -66,7 +66,15 @@ document.body.addEventListener("keyup", function (keystroke) {
 				searchLinksForString(lastSearch, lastSearchedIndex);
 			}
 	}
+	else if (keystroke.key == linkFollowKey && barOpen) {
+		//follow it in a new tab if ctrl is pressed
+		if (keystroke.ctrlKey) {
+			currentLink.target = "_blank";
+		}
 
+		//follow the selected link normally if not
+		currentLink.click();
+	}
 	else if (barOpen && document.activeElement.id === searchBarId) {
 		if (printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
 			//begin the search feature here
@@ -138,10 +146,11 @@ function searchLinksForString (searchString, instanceNo) {
 
 		//highlight the matching link
 		currentLink.style.backgroundColor = linkHighlightColor;
-		
+
+		currentLink.scrollIntoView(false);
 	}
 	else {
-		console.log("no match for: " + lastSearch);
+		//console.log("no match for: " + lastSearch);
 		lastSearchedIndex = 0;
 	}
 	//var selection = window.getSelection();
@@ -155,3 +164,4 @@ function resetCurrentLink() {
 		currentLink = null;
 	}
 }
+
