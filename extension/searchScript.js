@@ -23,7 +23,7 @@ bodyNode.appendChild(searchBar);
 var lastSearch = "";
 
 //The index of the next link to search;
-var searchNext = 0;
+var lastSearchedIndex = 0;
 
 //The currently selected link.  It had to be put here,
 //so as to be able to reset its style when selecting a
@@ -47,22 +47,44 @@ document.body.addEventListener("keyup", function (keystroke) {
 		hideSearchBar();
 
 		//stub
-		searchNext = 0;
+		lastSearchedIndex = 0;
 	}
 	else if (keystroke.key == continueKey) {
 			//continue the search without clearing the last search
 			showSearchBar();
-			searchLinksForString(lastSearch, searchNext);
-			searchNext++;
+			if (barOpen) {
+				//search the next link
+				if (!keystroke.shiftKey) {
+					searchLinksForString(lastSearch, ++lastSearchedIndex);
+				}
+				else {
+					searchLinksForString(lastSearch, --lastSearchedIndex);
+				}
+			}
+			else {
+				//search the current one again
+				searchLinksForString(lastSearch, lastSearchedIndex);
+			}
 	}
 
 	else if (barOpen && document.activeElement.id === searchBarId) {
-		//begin the search feature here
-		lastSearch = getSearchValue();
-		searchLinksForString(lastSearch, 0);
-		searchNext = 1;
+		if (printableKey(keystroke.keyCode)) {
+			//begin the search feature here
+			lastSearch = getSearchValue();
+			searchLinksForString(lastSearch, 0);
+		}
 	}
 });
+
+function printableKey (keyCode) {
+	if (keyCode == 32 ||  (keyCode > 47 && keyCode < 58) 
+	|| (keyCode > 64 && keyCode < 91) || (keyCode > 95 && keyCode < 112)
+	|| (keyCode > 185 && keyCode < 193) || (keyCode > 218 && keyCode < 223)) {
+		//then it is a printable character
+		return true;
+	}
+	return false;
+}
 
 function showSearchBar() {
 	if (!barOpen) {
@@ -94,10 +116,14 @@ function searchLinksForString (searchString, instanceNo) {
 	var filteredLinks = [];
 	for (var i = 0; i < allLinks.length; i++) {
 		if (allLinks[i].innerText.includes(lastSearch)) {
-			//console.log("link: " + allLinks[i].innerText);
 			filteredLinks.push(allLinks[i]);
 		}
 	} 
+
+	if (instanceNo < 0) {
+		instanceNo = filteredLinks.length + instanceNo;
+	}
+	
 	// target instance is filtered[no]
 	if (filteredLinks.length > 0) {
 		currentLink = filteredLinks[instanceNo % filteredLinks.length];
@@ -107,13 +133,13 @@ function searchLinksForString (searchString, instanceNo) {
 	}
 	else {
 		console.log("no match for: " + lastSearch);
+		lastSearchedIndex = 0;
 	}
 	//var selection = window.getSelection();
-	//selection.empty();
-	
-	//console.log(currentLink.innerText);
 }
 
+//Resets the style of the current link, as well as sets
+//the reference to null
 function resetCurrentLink() {
 	if (currentLink != null) {
 		currentLink.style = currentLinkStyle;
