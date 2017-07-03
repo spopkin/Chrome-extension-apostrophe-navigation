@@ -6,6 +6,8 @@ const barOpenKey = '\'';
 const barCloseKey = 'Escape';
 //F3 does this in Firefox, but Chrome intercepts that
 const continueKey = 'F2';
+const linkBorderStyle = "1px dotted grey";
+const linkHighlightColor = "#ECECFF";
 
 //are we in the middle of a search now?
 var barOpen = false;
@@ -62,13 +64,11 @@ document.body.addEventListener("keyup", function (keystroke) {
 			else {
 				//search the current one again
 				searchLinksForString(lastSearch, lastSearchedIndex);
-				console.log("asdf");
 			}
-			console.log(lastSearchedIndex);
 	}
 
 	else if (barOpen && document.activeElement.id === searchBarId) {
-		if (printableKey(keystroke.keyCode)) {
+		if (printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
 			//begin the search feature here
 			lastSearch = getSearchValue();
 			searchLinksForString(lastSearch, 0);
@@ -111,11 +111,12 @@ function getSearchValue() {
 // Params: the string to search for, the instance number
 // if you are using the F2 key to iterate
 function searchLinksForString (searchString, instanceNo) {
+	searchString = searchString.toLowerCase();
 	resetCurrentLink();
 	var allLinks = document.getElementsByTagName("a");
 	var filteredLinks = [];
 	for (var i = 0; i < allLinks.length; i++) {
-		if (allLinks[i].innerText.includes(lastSearch)) {
+		if (allLinks[i].innerText.toLowerCase().includes(lastSearch)) {
 			filteredLinks.push(allLinks[i]);
 		}
 	} 
@@ -127,10 +128,16 @@ function searchLinksForString (searchString, instanceNo) {
 	
 	// target instance is filtered[no]
 	if (filteredLinks.length > 0) {
+		//get the current link
 		currentLink = filteredLinks[instanceNo % filteredLinks.length];
 		currentLinkStyle = currentLink.style;
-		currentLink.style.border = "1px dotted grey";
+
+		//add border to it
+		currentLink.style.border = linkBorderStyle;
 		lastSearchedIndex = instanceNo;
+
+		//highlight the matching link
+		currentLink.style.backgroundColor = linkHighlightColor;
 		
 	}
 	else {
