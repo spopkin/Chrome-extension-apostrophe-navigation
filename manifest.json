@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 
-	"name": "Apostrophe navigation extension",
+	"name": "Apostrophe Navigation Extension",
 	"short_name": "Apostrophe",
 	"description": "link search navigation for Chrome",
 	"version": "0.1.0.0",
