@@ -45,24 +45,27 @@ searchBar.focus();
 
 //Listen for the apropriate keystroke input and open the search bar.
 document.body.addEventListener("keyup", function (keystroke) {
-	if (keystroke.key == barOpenKey) {
-		if (keystroke.target.nodeName != "INPUT") {
-			lastSearch = "";
-			showSearchBar();
-			document.getElementById(searchBarId).focus();
-		}
-	}
-	else if (barOpen && document.activeElement.id === searchBarId 
+	if (barOpen && document.activeElement.id === searchBarId 
 	&& printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
 		//begin the search feature here
 		lastSearch = getSearchValue();
 		searchLinksForString(lastSearch, 0);
 	}
 
-});
+}, false);
 
 //Listen for the appropriate keystrokes that do everything else.
 document.body.addEventListener("keydown", function (keystroke) {
+	if (keystroke.key == barOpenKey) {
+		if (keystroke.target.nodeName != "INPUT") {
+			lastSearch = "";
+			//showSearchBar();
+			if (showSearchBar()) {
+				keystroke.preventDefault();
+			}
+			document.getElementById(searchBarId).focus();
+		}
+	}
 	if (keystroke.key == barCloseKey) {
 		//close the search bar
 		hideSearchBar();
@@ -88,8 +91,7 @@ document.body.addEventListener("keydown", function (keystroke) {
 	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
 		//follow it in a new tab if ctrl is pressed
 		if (keystroke.ctrlKey) {
-			currentLink.target = "_blank";
-			currentLink.click();
+			window.open(currentLink.href);
 			hideSearchBar();
 		}
 		else {
@@ -97,7 +99,7 @@ document.body.addEventListener("keydown", function (keystroke) {
 			currentLink.click();
 		}
 	}
-});
+}, true);
 
 function printableKey (keyCode) {
 	if (keyCode == 32 ||  (keyCode > 47 && keyCode < 58) 
@@ -114,7 +116,9 @@ function showSearchBar() {
 		searchBar.value = lastSearch;
 		document.getElementById(searchBarDivId).style.display = "block";
 		barOpen = true;
+		return true;
 	}
+	return false;
 }
 
 function hideSearchBar() {
@@ -184,5 +188,10 @@ function resetCurrentLink() {
 		currentLink.style = currentLinkStyle;
 		currentLink = null;
 	}
+}
+
+//opens a link in a new background tab
+function openLinkInNewBackgroundTab(linkToOpen) {
+	
 }
 
