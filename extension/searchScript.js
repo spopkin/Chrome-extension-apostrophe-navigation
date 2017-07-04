@@ -43,7 +43,7 @@ var currentLinkStyle = null;
 
 searchBar.focus();
 
-//Listen for the apropriate keystroke input and take action
+//Listen for the apropriate keystroke input and open the search bar.
 document.body.addEventListener("keyup", function (keystroke) {
 	if (keystroke.key == barOpenKey) {
 		if (keystroke.target.nodeName != "INPUT") {
@@ -52,7 +52,11 @@ document.body.addEventListener("keyup", function (keystroke) {
 			document.getElementById(searchBarId).focus();
 		}
 	}
-	else if (keystroke.key == barCloseKey) {
+});
+
+//Listen for the appropriate keystrokes that do everything else.
+document.body.addEventListener("keydown", function (keystroke) {
+	if (keystroke.key == barCloseKey) {
 		//close the search bar
 		hideSearchBar();
 	}
