@@ -52,24 +52,11 @@ document.body.addEventListener("keyup", function (keystroke) {
 			document.getElementById(searchBarId).focus();
 		}
 	}
-	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
-		//follow it in a new tab if ctrl is pressed
-		if (keystroke.ctrlKey) {
-			currentLink.target = "_blank";
-			currentLink.click();
-			hideSearchBar();
-		}
-		else {
-			//follow the selected link normally if not
-			currentLink.click();
-		}
-	}
-	else if (barOpen && document.activeElement.id === searchBarId) {
-		if (printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
-			//begin the search feature here
-			lastSearch = getSearchValue();
-			searchLinksForString(lastSearch, 0);
-		}
+	else if (barOpen && document.activeElement.id === searchBarId 
+	&& printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
+		//begin the search feature here
+		lastSearch = getSearchValue();
+		searchLinksForString(lastSearch, 0);
 	}
 
 });
@@ -97,6 +84,18 @@ document.body.addEventListener("keydown", function (keystroke) {
 				//search the current one again
 				searchLinksForString(lastSearch, lastSearchedIndex);
 			}
+	}
+	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
+		//follow it in a new tab if ctrl is pressed
+		if (keystroke.ctrlKey) {
+			currentLink.target = "_blank";
+			currentLink.click();
+			hideSearchBar();
+		}
+		else {
+			//follow the selected link normally if not
+			currentLink.click();
+		}
 	}
 });
 
