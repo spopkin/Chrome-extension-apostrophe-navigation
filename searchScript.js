@@ -7,7 +7,8 @@ const barCloseKey = 'Escape';
 //F3 does this in Firefox, but Chrome intercepts that
 const continueKey = 'F2';
 const linkBorderStyle = "1px dotted grey";
-const linkHighlightColor = "#ECECFF";
+//const linkHighlightColor = "#ECECFF";
+const linkHighlightColor = "#FFEE55";
 const linkFollowKey = 'Enter';
 
 //are we in the middle of a search now?
