@@ -4,7 +4,7 @@
 	"name": "Apostrophe Navigation Extension",
 	"short_name": "Apostrophe",
 	"description": "link search navigation for Chrome",
-	"version": "0.1.2.0",
+	"version": "0.1.2.1",
 	
 	"browser_action": {
 		"icons": {

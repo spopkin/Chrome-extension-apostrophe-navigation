@@ -43,17 +43,6 @@ var currentLinkStyle = null;
 
 searchBar.focus();
 
-//Listen for the apropriate keystroke input and open the search bar.
-document.body.addEventListener("keyup", function (keystroke) {
-	if (barOpen && document.activeElement.id === searchBarId 
-	&& printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
-		//begin the search feature here
-		lastSearch = getSearchValue();
-		searchLinksForString(lastSearch, 0);
-	}
-
-}, false);
-
 //Listen for the appropriate keystrokes that do everything else.
 document.body.addEventListener("keydown", function (keystroke) {
 	if (keystroke.key == barOpenKey) {
@@ -65,7 +54,15 @@ document.body.addEventListener("keydown", function (keystroke) {
 			}
 			document.getElementById(searchBarId).focus();
 		}
+	}	
+	else if (barOpen && document.activeElement.id === searchBarId 
+	&& printableKey(keystroke.keyCode) || keystroke.key == 'Backspace'
+	&& keystroke.target.id == injectedApostropheSearchBar) {
+		//begin the search feature here
+		lastSearch = getSearchValue();
+		searchLinksForString(lastSearch, 0);
 	}
+
 	if (keystroke.key == barCloseKey) {
 		//close the search bar
 		hideSearchBar();
