@@ -11,6 +11,10 @@ with normal page elements unlikely */
 	display: none;
 }
 
+#injectedApostropheDiv p {
+	background-color: white;
+}
+
 #apostrophePopupBody {
 	min-width: 300px;	
 }
