@@ -7,7 +7,6 @@ const barCloseKey = 'Escape';
 //F3 does this in Firefox, but Chrome intercepts that
 const continueKey = 'F2';
 const linkBorderStyle = "1px dotted grey";
-//const linkHighlightColor = "#ECECFF";
 const linkHighlightColor = "#FFEE55";
 const linkFollowKey = 'Enter';
 
@@ -53,6 +52,26 @@ document.body.addEventListener("keyup", function (keystroke) {
 			document.getElementById(searchBarId).focus();
 		}
 	}
+	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
+		//follow it in a new tab if ctrl is pressed
+		if (keystroke.ctrlKey) {
+			currentLink.target = "_blank";
+			currentLink.click();
+			hideSearchBar();
+		}
+		else {
+			//follow the selected link normally if not
+			currentLink.click();
+		}
+	}
+	else if (barOpen && document.activeElement.id === searchBarId) {
+		if (printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
+			//begin the search feature here
+			lastSearch = getSearchValue();
+			searchLinksForString(lastSearch, 0);
+		}
+	}
+
 });
 
 //Listen for the appropriate keystrokes that do everything else.
@@ -78,25 +97,6 @@ document.body.addEventListener("keydown", function (keystroke) {
 				//search the current one again
 				searchLinksForString(lastSearch, lastSearchedIndex);
 			}
-	}
-	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
-		//follow it in a new tab if ctrl is pressed
-		if (keystroke.ctrlKey) {
-			currentLink.target = "_blank";
-			currentLink.click();
-			hideSearchBar();
-		}
-		else {
-			//follow the selected link normally if not
-			currentLink.click();
-		}
-	}
-	else if (barOpen && document.activeElement.id === searchBarId) {
-		if (printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
-			//begin the search feature here
-			lastSearch = getSearchValue();
-			searchLinksForString(lastSearch, 0);
-		}
 	}
 });
 
@@ -140,7 +140,7 @@ function searchLinksForString (searchString, instanceNo) {
 	var allLinks = document.getElementsByTagName("a");
 	var filteredLinks = [];
 	for (var i = 0; i < allLinks.length; i++) {
-		if (allLinks[i].innerText.toLowerCase().includes(lastSearch)) {
+		if (allLinks[i].innerText.toLowerCase().indexOf(searchString.toLowerCase()) != -1) {
 			filteredLinks.push(allLinks[i]);
 		}
 	} 
