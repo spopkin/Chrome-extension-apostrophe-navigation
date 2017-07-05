@@ -13,19 +13,6 @@ const linkFollowKey = 'Enter';
 //are we in the middle of a search now?
 var barOpen = false;
 
-//create the search bar
-var bodyNode = document.body;
-var searchBarDiv = document.createElement("div");
-var searchBar = document.createElement("input");
-var resultText = document.createElement("p");
-searchBarDiv.id = searchBarDivId;
-resultText.id = searchBarResultTextId;
-searchBar.nodeType = "text";
-searchBar.id = searchBarId;
-searchBarDiv.appendChild(searchBar);
-searchBarDiv.appendChild(resultText);
-bodyNode.appendChild(searchBarDiv);
-
 //The most recent search query.  It has to be up here,
 //so as to facilitate pickup up where we left off with
 //the F2 key.
@@ -41,31 +28,68 @@ var lastSearchedIndex = 0;
 var currentLink = null;
 var currentLinkStyle = null;
 
+//prepare the search bar
+var searchBar;
+prepareSearchBar();
+
+//attach the event listeners for keystrokes
+addEventListeners();
+
 searchBar.focus();
 
-//Listen for the appropriate keystrokes that do everything else.
-document.body.addEventListener("keydown", function (keystroke) {
-	if (keystroke.key == barOpenKey) {
-		if (keystroke.target.nodeName != "INPUT") {
-			lastSearch = "";
-			//showSearchBar();
-			if (showSearchBar()) {
-				keystroke.preventDefault();
-			}
-			document.getElementById(searchBarId).focus();
-		}
-	}	
-	else if (barOpen && document.activeElement.id === searchBarId 
-	&& printableKey(keystroke.keyCode) || keystroke.key == 'Backspace'
-	&& keystroke.target.id == injectedApostropheSearchBar) {
+//listen for the bar open sequence
+function openEvent(keystroke) {
+	//handle the bar opening case
+	if (keystroke.key == barOpenKey
+	&& keystroke.target != searchBar
+	&& ((keystroke.target == null 
+		|| keystroke.target == undefined
+		)
+		|| (!keystroke.target.isContentEditable))) {
+		lastSearch = "";
+		showSearchBar();
+		keystroke.stopPropagation();
+		keystroke.preventDefault();
+	}
+}
+
+//listen for keystrokes being typed into the search bar 
+function keyEvents(keystroke) {
+	//handle text being typed into the search bar
+	if (barOpen && printableKey(keystroke.keyCode) || keystroke.key == 'Backspace') {
 		//begin the search feature here
-		lastSearch = getSearchValue();
+		if (keystroke.key != 'Backspace') {
+			lastSearch = getSearchValue() + keystroke.key;
+		} else {
+			lastSearch = lastSearch.substring(0, lastSearch.length - 1);
+		}
 		searchLinksForString(lastSearch, 0);
 	}
+}
 
+//Listen for the appropriate keystrokes that do everything else.
+function otherEvents (keystroke) {
+	//escape should close the search bar, text field or no
 	if (keystroke.key == barCloseKey) {
 		//close the search bar
 		hideSearchBar();
+	}
+	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
+		//follow it in a new tab if ctrl is pressed
+		if (keystroke.ctrlKey) {
+			window.open(currentLink.href);
+		}
+		else {
+			//follow the selected link normally if not
+			currentLink.click();
+		}
+		//hide the search bar (ctrl-enter, as well as links that trigger JS)
+		hideSearchBar();
+
+		//reattach event listeners in case the page's javascript simply replaces
+		//the document in place.
+		removeEventListeners();
+		addEventListeners();
 	}
 	else if (keystroke.key == continueKey) {
 			var wasOpen = barOpen;
@@ -85,19 +109,9 @@ document.body.addEventListener("keydown", function (keystroke) {
 				searchLinksForString(lastSearch, lastSearchedIndex);
 			}
 	}
-	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
-		//follow it in a new tab if ctrl is pressed
-		if (keystroke.ctrlKey) {
-			window.open(currentLink.href);
-			hideSearchBar();
-		}
-		else {
-			//follow the selected link normally if not
-			currentLink.click();
-		}
-	}
-}, true);
+}
 
+//returns true if the key is a valid one to use in the search bar
 function printableKey (keyCode) {
 	if (keyCode == 32 ||  (keyCode > 47 && keyCode < 58) 
 	|| (keyCode > 64 && keyCode < 91) || (keyCode > 95 && keyCode < 112)
@@ -109,13 +123,10 @@ function printableKey (keyCode) {
 }
 
 function showSearchBar() {
-	if (!barOpen) {
-		searchBar.value = lastSearch;
-		document.getElementById(searchBarDivId).style.display = "block";
-		barOpen = true;
-		return true;
-	}
-	return false;
+	searchBar.value = lastSearch;
+	document.getElementById(searchBarDivId).style.display = "block";
+	barOpen = true;
+	document.getElementById(searchBarId).focus();
 }
 
 function hideSearchBar() {
@@ -151,7 +162,7 @@ function searchLinksForString (searchString, instanceNo) {
 	}
 
 	// target instance is filtered[no]
-	if (filteredLinks.length > 0) {
+	if (filteredLinks.length > 0 && searchString.length > 0) {
 		//adjust the instance number if it is too big
 		instanceNo = instanceNo % filteredLinks.length;
 
@@ -171,8 +182,8 @@ function searchLinksForString (searchString, instanceNo) {
 		+ (instanceNo + 1) + " of " + (filteredLinks.length);
 	}
 	else {
-		//console.log("no match for: " + lastSearch);
 		lastSearchedIndex = 0;
+		resetCurrentLink();
 		document.getElementById(searchBarResultTextId).innerText = "result 0 of 0";
 	}
 	//var selection = window.getSelection();
@@ -188,7 +199,43 @@ function resetCurrentLink() {
 }
 
 //opens a link in a new background tab
-function openLinkInNewBackgroundTab(linkToOpen) {
-	
+function hasEditableCapability(element) {
+	var current = element;
+	while(current.parentNode != null && current.parentNode != document.body) {
+		if (current.contenteditable != undefined) {
+			return true;
+		}	
+		current = current.parentNode;
+	}
+	return false;	
 }
 
+//removes all eventlisteners
+function removeEventListeners() {
+	document.removeEventListener("keydown", otherEvents, false);
+	document.removeEventListener("keydown", openEvent, true);
+	document.getElementById(searchBarId).removeEventListener("keydown", keyEvents, false);
+}
+
+//attaches all eventlisteners
+function addEventListeners() {
+	document.addEventListener("keydown", otherEvents, false);
+	document.addEventListener("keydown", openEvent, true);
+	document.getElementById(searchBarId).addEventListener("keydown", keyEvents, false);
+}
+
+//prepares the search bar
+function prepareSearchBar() {
+	//create the search bar
+	var bodyNode = document.body;
+	var searchBarDiv = document.createElement("div");
+	searchBar = document.createElement("input");
+	var resultText = document.createElement("p");
+	searchBarDiv.id = searchBarDivId;
+	resultText.id = searchBarResultTextId;
+	searchBar.nodeType = "text";
+	searchBar.id = searchBarId;
+	searchBarDiv.appendChild(searchBar);
+	searchBarDiv.appendChild(resultText);
+	bodyNode.appendChild(searchBarDiv);
+}
