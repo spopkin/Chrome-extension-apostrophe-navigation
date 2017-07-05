@@ -45,7 +45,8 @@ function openEvent(keystroke) {
 	&& ((keystroke.target == null 
 		|| keystroke.target == undefined
 		)
-		|| (!keystroke.target.isContentEditable))) {
+		|| (!keystroke.target.isContentEditable))
+	&& keystroke.target.nodeName.toLowerCase() !== "input") {
 		lastSearch = "";
 		showSearchBar();
 		keystroke.stopPropagation();
