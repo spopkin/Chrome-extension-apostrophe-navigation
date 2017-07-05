@@ -74,12 +74,12 @@ function otherEvents (keystroke) {
 		//close the search bar
 		hideSearchBar();
 	}
-	else if (keystroke.key == linkFollowKey && barOpen && currentLink != null) {
+	else if (keystroke.key == linkFollowKey && barOpen) {
 		//follow it in a new tab if ctrl is pressed
-		if (keystroke.ctrlKey) {
+		if (keystroke.ctrlKey && currentLink != null) {
 			window.open(currentLink.href);
 		}
-		else {
+		else if(currentLink != null) {
 			//follow the selected link normally if not
 			currentLink.click();
 		}
