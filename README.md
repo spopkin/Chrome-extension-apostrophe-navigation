@@ -2,8 +2,11 @@
 Chrome extension for link search navigation like Firefox has
 
 ## How to install it
-Eventually, I will upload this extension to the Chrome web store, but for now it must be installed manually.
-For now, download this repository and follow the instructions that can be found at [https://developer.chrome.com/extensions/getstarted](https://developer.chrome.com/extensions/getstarted) under "Load the Extension".
+### Installing it from the Chrome Web Store
+It can be found [here](https://chrome.google.com/webstore/detail/apostrophe-navigation-ext/flddhoonfbaphfihmkoklkghmhmdhemh?hl=en-US&gl=US) in the Chrome web store.
+
+### How to Install it Manually
+Download this repository and follow the instructions that can be found at [https://developer.chrome.com/extensions/getstarted](https://developer.chrome.com/extensions/getstarted) under "Load the Extension".
 
 To summarize the process: 
 1. Open Chrome://extensions in Chrome
