@@ -9,6 +9,8 @@ const continueKey = 'F2';
 const linkBorderStyle = "1px dotted grey";
 const linkHighlightColor = "#FFEE55";
 const linkFollowKey = 'Enter';
+const tabAcrossPageKey = 'Tab';
+const searchLinkId = "injectedApostropheSearchLinkId";
 
 //are we in the middle of a search now?
 var barOpen = false;
@@ -27,6 +29,7 @@ var lastSearchedIndex = 0;
 //a different event than the one that selected it.
 var currentLink = null;
 var currentLinkStyle = null;
+var currentLinkId = null;
 
 //prepare the search bar
 var searchBar;
@@ -110,6 +113,18 @@ function otherEvents (keystroke) {
 				searchLinksForString(lastSearch, lastSearchedIndex);
 			}
 	}
+	else if (keystroke.key == tabAcrossPageKey && barOpen) {
+		//Then the user wants to indescriminantly tab to the next link on the page,
+		//whether or not it matches their search.
+		if (keystroke.shiftKey) {
+			tabAction(currentLink, false);
+		}
+		else {
+			tabAction(currentLink, true);
+		}	
+		keystroke.stopPropagation();
+		keystroke.preventDefault();
+	}
 }
 
 //returns true if the key is a valid one to use in the search bar
@@ -167,27 +182,15 @@ function searchLinksForString (searchString, instanceNo) {
 		//adjust the instance number if it is too big
 		instanceNo = instanceNo % filteredLinks.length;
 
-		//get the current link
-		currentLink = filteredLinks[instanceNo];
-		currentLinkStyle = currentLink.style;
-
-		//add border to it
-		currentLink.style.border = linkBorderStyle;
+		setCurrentLink(filteredLinks[instanceNo]);
 		lastSearchedIndex = instanceNo;
-
-		//highlight the matching link
-		currentLink.style.backgroundColor = linkHighlightColor;
-
-		currentLink.scrollIntoView(false);
-		document.getElementById(searchBarResultTextId).innerText = "result " 
-		+ (instanceNo + 1) + " of " + (filteredLinks.length);
+	
+		setSearchIndicator("result " + (instanceNo + 1) + " of " + (filteredLinks.length));
 	}
 	else {
 		lastSearchedIndex = 0;
 		resetCurrentLink();
-		document.getElementById(searchBarResultTextId).innerText = "result 0 of 0";
 	}
-	//var selection = window.getSelection();
 }
 
 //Resets the style of the current link, as well as sets
@@ -195,6 +198,8 @@ function searchLinksForString (searchString, instanceNo) {
 function resetCurrentLink() {
 	if (currentLink != null) {
 		currentLink.style = currentLinkStyle;
+		currentLink.id = currentLinkId;
+		setSearchIndicator("result 0 of 0");
 		currentLink = null;
 	}
 }
@@ -239,4 +244,73 @@ function prepareSearchBar() {
 	searchBarDiv.appendChild(searchBar);
 	searchBarDiv.appendChild(resultText);
 	bodyNode.appendChild(searchBarDiv);
+}
+
+//highlight the current link and set the appropriate variable
+function setCurrentLink(newCurrentLink) {
+		//get the current link
+		currentLink = newCurrentLink;
+		//back up the link's id and style
+		currentLinkStyle = currentLink.style;
+		currentLinkId = currentLink.id;
+
+		if (currentLinkId == null || currentLinkId == undefined || currentLinkId === "") {
+			//give the link an id if it does not have one
+			//this is used for the tab function
+			currentLink.id = searchLinkId;
+		}
+
+		//add border to it
+		currentLink.style.border = linkBorderStyle;
+
+		//highlight the matching link
+		currentLink.style.backgroundColor = linkHighlightColor;
+		
+		currentLink.scrollIntoView(false);
+
+}
+
+//If you have a link selected from your search, this tabs from it to the next link on the
+//page, regardless of if the next link matches your search or not.
+function tabAction(selectedLink, forward) {
+	var currentFound = false;
+	if (selectedLink != undefined && selectedLink != null) {
+		var allLinks = document.getElementsByTagName("a");
+		var start = 0;
+		var end = allLinks.length;
+		var increment = 1;
+		var loopText = "top";
+		if (!forward) {
+			start = allLinks.length -1;
+			end = -1;
+			increment = -1;
+			loopText = "bottom";
+		} 
+		for (var i = start; i != end; i = i + increment) {
+			if (allLinks[i].id != null && allLinks[i].id != undefined
+				&& allLinks[i].id.toLowerCase() === selectedLink.id.toLowerCase()) {
+				
+				currentFound = true;
+				continue;
+			}
+			if (currentFound) {
+				resetCurrentLink();
+				setCurrentLink(allLinks[i]);
+				setSearchIndicator("Tabbing through");
+				return;	
+			}
+		}
+		if (currentFound) {
+			//we looped around
+			resetCurrentLink();
+			setCurrentLink(allLinks[start]);
+			setSearchIndicator("Looped around to the " + loopText);
+		}
+	}
+	
+}
+
+//sets the "link x of y" text
+function setSearchIndicator(newText) {
+	document.getElementById(searchBarResultTextId).innerText = newText;
 }
