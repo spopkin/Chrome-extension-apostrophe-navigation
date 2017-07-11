@@ -49,7 +49,8 @@ function openEvent(keystroke) {
 		|| keystroke.target == undefined
 		)
 		|| (!keystroke.target.isContentEditable))
-	&& keystroke.target.nodeName.toLowerCase() !== "input") {
+	&& keystroke.target.nodeName.toLowerCase() !== "input"
+	&& keystroke.target.nodeName.toLowerCase() !== "textarea") {
 		lastSearch = "";
 		showSearchBar();
 		keystroke.stopPropagation();
